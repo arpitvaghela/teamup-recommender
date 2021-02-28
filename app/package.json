@@ -1,0 +1,34 @@
+{
+  "name": "team-up",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TeamUp",
+  "author": "arpitvaghela",
+  "keywords": [
+    "gatsby"
+  ],
+  "scripts": {
+    "develop": "gatsby develop",
+    "start": "gatsby develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean"
+  },
+  "dependencies": {
+    "gatsby": "^2.32.8",
+    "gatsby-image": "^2.11.0",
+    "gatsby-plugin-react-helmet": "^3.10.0",
+    "gatsby-plugin-sharp": "^2.14.3",
+    "gatsby-source-filesystem": "^2.11.1",
+    "gatsby-transformer-sharp": "^2.12.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-helmet": "^6.1.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.2.4",
+    "gatsby-plugin-postcss": "^3.7.0",
+    "postcss": "^8.2.6",
+    "tailwindcss": "^2.0.3"
+  }
+}
