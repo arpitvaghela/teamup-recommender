@@ -1,5 +1,7 @@
 from typing import List
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+
 from sqlalchemy.orm import Session
 
 from . import crud, models, schemas
@@ -9,6 +11,19 @@ from .database import SessionLocal, engine
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+    "http://localhost:5000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Dependency
@@ -18,6 +33,14 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+@app.post("/login", response_model=schemas.User)
+def login(auth: schemas.Auth, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(db, email=auth.email)
+    if db_user:
+        return db_user
+    raise HTTPException(status_code=404, detail="User Not Found")
 
 
 # user
@@ -41,3 +64,11 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
+
+
+# @app.put("/users/{user_id}", response_model=schemas.User)
+# def update_user(user_id: int, user: schemas.UserUpdate, db: Session = Depends(get_db)):
+#     db_user = crud.update_user(db, user_id=user_id, user=user)
+#     if db_user is None:
+#         raise HTTPException(status_code=404, detail="User not found")
+#     return db_user
