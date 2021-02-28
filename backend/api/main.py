@@ -72,3 +72,14 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 #     if db_user is None:
 #         raise HTTPException(status_code=404, detail="User not found")
 #     return db_user
+
+
+@app.get("/interactions/{sender_id}/{reciever_id}")
+def send_interaction(sender_id: int, reciever_id: int, db: Session = Depends(get_db)):
+    crud.send_interaction(db, sender_id, reciever_id)  # error check
+    return
+
+
+@app.get("/recommendations/{user_id}")
+def get_recommendation(user_id: int, db: Session = Depends(get_db)):
+    return crud.recommed_best_two(db, user_id)

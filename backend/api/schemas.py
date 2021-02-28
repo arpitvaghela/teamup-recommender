@@ -27,7 +27,6 @@ class UserUpdate(BaseModel):
 
 class Group(BaseModel):
     id: int
-
     # members: List["backend.api.schemas.User"]
 
     class Config:
@@ -35,6 +34,7 @@ class Group(BaseModel):
 
 
 class User(BaseModel):
+    id: int
     firstname: str
     lastname: str
     email: str
@@ -48,3 +48,8 @@ class User(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class Interaction(BaseModel):
+    sender_id: int
+    reciever_id: int
