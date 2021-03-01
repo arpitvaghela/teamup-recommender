@@ -1,4 +1,4 @@
-from sqlalchemy import desc
+from sqlalchemy import desc, not_
 from sqlalchemy.orm import Session
 from . import models, schemas
 
@@ -30,6 +30,24 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
     )
 
 
+def get_popular_users(db: Session, user_id: int):
+    all_send = set(
+        np.array(
+            db.query(models.Interaction.receiver_id)
+            .filter(models.Interaction.sender_id == user_id)
+            .all()
+        )
+        .reshape(-1)
+        .tolist()
+    )
+    return (
+        db.query(models.User)
+        .filter(not_(models.User.id.in_(all_send)))
+        .order_by(desc(models.User.received_count))
+        .all()
+    )
+
+
 def create_user(db: Session, user: schemas.UserCreate):
     # hash password
     db_user = models.User(
@@ -45,12 +63,18 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
+# def team_up(db:Session,u1:int,u2:int):
+    
 
-def send_interaction(db: Session, sender_id, receiver_id):
+def send_interaction(db: Session, sender_id:int, receiver_id:int):
     db_interaction = models.Interaction(sender_id=sender_id, receiver_id=receiver_id)
 
     db.add(db_interaction)
+    # if r-> s, then create group and add to successful interactions 
+    if db.query(models.Interaction).filter(sender_id=receiver_id, receiver_id=receiver_id).first() is not None:
+        
 
+    # update received count
     db.query(models.User.id).filter(models.User.id == receiver_id).update(
         {models.User.received_count: models.User.received_count + 1}
     )
@@ -76,7 +100,7 @@ def recommed_best_two(db: Session, user_id: int):
     all_send = set(
         np.array(
             db.query(models.Interaction.receiver_id)
-            .filter(models.Interaction.sender_id == 9)
+            .filter(models.Interaction.sender_id == user_id)
             .all()
         )
         .reshape(-1)

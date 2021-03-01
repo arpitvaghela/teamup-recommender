@@ -8,7 +8,7 @@ const Dashboard =  () => {
     const [refresh,setRefresh] = useState(0)
     
     useEffect(() => {
-        fetch("http://localhost:5000/users/?skip=0&limit=100").then(r => r.json()).then(users => setPopularUsers(users) )
+        fetch(`http://localhost:5000/popular/${window.localStorage.getItem("userid")}`).then(r => r.json()).then(users => setPopularUsers(users) )
     },[refresh])
     useEffect(() => {
         fetch(`http://localhost:5000/recommendations/${window.localStorage.getItem("userid")}`).then(r => r.json()).then(data =>setRecommendations(data) )
