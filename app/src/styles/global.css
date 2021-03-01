@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.inactive-link {
+  filter: opacity(0.3);
+}

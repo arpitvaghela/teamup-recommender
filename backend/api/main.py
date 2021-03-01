@@ -85,6 +85,6 @@ def get_recommendation(user_id: int, db: Session = Depends(get_db)):
     return crud.recommed_best_two(db, user_id)
 
 
-@app.get("/pending/{user_id}")
+@app.get("/inbox/{user_id}")
 def get_pending_request(user_id: int, db: Session = Depends(get_db)):
     return crud.get_pending_requests(db, user_id)
