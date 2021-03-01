@@ -99,7 +99,7 @@ def get_pending_request(user_id: int, db: Session = Depends(get_db)):
 def get_user_team(user_id: int, db: Session = Depends(get_db)):
     team = crud.get_team(db, user_id=user_id)
     if not team:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404)
     return team
 
 

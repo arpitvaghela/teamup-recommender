@@ -68,6 +68,36 @@ const UserCard = ({e,inbox,setRefresh,refresh}) => {
         </div>
     )
 }
+const UserCardTeam = ({e}) => {
+    return (
+<div className=" m-4 rounded-lg border  border-indigo-400 w-64">
+          <div className="bg-indigo-300 h-48"></div>
+          <div className="mx-4 mb-4">
+            <div className="flex justify-between mt-4">
+              <h1 className="font-sans mr-2">{`${e.firstname} ${e.lastname}`}</h1>
+            </div>
+            <div className="flex justify-between ">
+              <div className="text-xs text-gray-600 font-bold">
+                {user_sample.degree} / {user_sample.year} year
+              </div>
+              {/* <span className="text-xs text-gray-600 text-right">{user_sample.year} year</span> */}
+
+            </div>
+              <div className="grid grid-cols-3 justify-center pt-2 mt-2 border-t">
+                <a className={"flex justify-center "+(!e.email?"inactive-link":"cursor-pointer")} href={`mailto:${e.email}`} >
+                  <div className="h-6 w-6 ">{mail_svg}</div>
+                </a>
+                <a className={"flex justify-center cursor-pointer "+(!e.github?"inactive-link":"")} href={e.github}>
+                  <div className="h-6 w-6">{github_svg}</div>
+                </a>
+                <a className={"flex justify-center cursor-pointer "+(!e.linkedin?"inactive-link":"")} href={e.linkedin}>
+                  <div className="h-6 w-6">{linkedin_svg}</div>
+                </a>
+              </div>
+          </div>
+        </div>
+    )
+}
 
 const UserList = ({ users,inbox,setRefresh,refresh }) => {
   return (
@@ -78,5 +108,15 @@ const UserList = ({ users,inbox,setRefresh,refresh }) => {
     </div>
   );
 };
+
+export const TeamList = ({users}) => {
+    return (
+    <div className="flex flex-wrap">
+      {users.map((e, i) => (
+          <UserCardTeam e={e} key={i} />
+      ))}
+    </div>
+  );
+}
 
 export default UserList;

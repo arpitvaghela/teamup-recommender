@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import EditProfile from "../components/editprofile";
 import Dashboard from "../components/dashboard";
 import Inbox from "../components/inbox";
-
+import MyTeam from "../components/myteam"
+import AllTeams from "../components/allteams";
 const homesvg = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -118,9 +119,9 @@ const IndexPage = () => {
         ) : selectedPage === inbox ? (
           <Inbox />
         ) : selectedPage === myteam ? (
-          <>My team</>
+          <MyTeam/>
         ) : selectedPage === allteam ? (
-          <>All teams</>
+          <AllTeams/>
         ) : selectedPage === editprofile ? (
           <EditProfile />
         ) : (
