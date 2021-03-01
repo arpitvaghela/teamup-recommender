@@ -25,6 +25,7 @@ class User(Base):
     github = Column(String, nullable=True)
     linkedin = Column(String, nullable=True)
 
+    received_count = Column(Integer)
     groups = relationship(
         "Group", secondary=user_group_association_table, back_populates="members"
     )
@@ -43,11 +44,11 @@ class Interaction(Base):
     __tablename__ = "interactions"
 
     sender_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    reciever_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    receiver_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
 
 
 class PositiveInteractions(Base):
     __tablename__ = "positive_interactions"
 
     sender_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    reciever_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    receiver_id = Column(Integer, ForeignKey("users.id"), primary_key=True)

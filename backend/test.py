@@ -16,7 +16,7 @@ def create_interaction_matrix():
     interaction_matrix = pd.DataFrame(0, index=ids, columns=ids)
     # fill matrix based on interaction table
     for u in db.query(models.Interaction):
-        interaction_matrix[u.reciever_id][u.sender_id] = 1
+        interaction_matrix[u.receiver_id][u.sender_id] = 1
     return interaction_matrix
 
 
@@ -27,4 +27,22 @@ def get_best_two_recommedations():
 
 
 if __name__ == "__main__":
-    print(get_best_two_recommedations())
+    all_received = set(
+        np.array(
+            db.query(models.Interaction.sender_id)
+            .filter(models.Interaction.receiver_id == 9)
+            .all()
+        )
+        .reshape(-1)
+        .tolist()
+    )
+    all_send = set(
+        np.array(
+            db.query(models.Interaction.receiver_id)
+            .filter(models.Interaction.sender_id == 9)
+            .all()
+        )
+        .reshape(-1)
+        .tolist()
+    )
+    print(all_received - all_send)

@@ -1,3 +1,4 @@
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 from . import models, schemas
 
@@ -20,7 +21,13 @@ def get_user_by_email(db: Session, email: str):
 
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.User).offset(skip).limit(limit).all()
+    return (
+        db.query(models.User)
+        .order_by(desc(models.User.received_count))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def create_user(db: Session, user: schemas.UserCreate):
@@ -39,10 +46,14 @@ def create_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 
-def send_interaction(db: Session, sender_id, reciever_id):
-    db_interaction = models.Interaction(sender_id=sender_id, reciever_id=reciever_id)
+def send_interaction(db: Session, sender_id, receiver_id):
+    db_interaction = models.Interaction(sender_id=sender_id, receiver_id=receiver_id)
 
     db.add(db_interaction)
+
+    db.query(models.User.id).filter(models.User.id == receiver_id).update(
+        {models.User.received_count: models.User.received_count + 1}
+    )
     db.commit()
     return db_interaction
 
@@ -53,14 +64,49 @@ def create_interaction_matrix(db: Session):
     interaction_matrix = pd.DataFrame(0, index=ids, columns=ids)
     # fill matrix based on interaction table
     for u in db.query(models.Interaction):
-        interaction_matrix[u.reciever_id][u.sender_id] = 1
+        interaction_matrix[u.receiver_id][u.sender_id] = 1
     return interaction_matrix
 
 
-def recommed_best_two(db: Session, user_id):
+def recommed_best_two(db: Session, user_id: int):
     iM = create_interaction_matrix(db)
-    recommended_user_ids = [u[0] for u in Best_Two_CF(iM, user_id) if u[1] > 0]
-    return db.query(models.User).filter(models.User.id.in_(recommended_user_ids)).all()
+    recommended_user_ids = set(u[0] for u in Best_Two_CF(iM, user_id) if u[1] > 0)
+
+    # users to whom the user has already send
+    all_send = set(
+        np.array(
+            db.query(models.Interaction.receiver_id)
+            .filter(models.Interaction.sender_id == 9)
+            .all()
+        )
+        .reshape(-1)
+        .tolist()
+    )
+    final_recommendations = recommended_user_ids - all_send
+    return db.query(models.User).filter(models.User.id.in_(final_recommendations)).all()
+
+
+def get_pending_requests(db: Session, user_id: int):
+    all_received = set(
+        np.array(
+            db.query(models.Interaction.sender_id)
+            .filter(models.Interaction.receiver_id == user_id)
+            .all()
+        )
+        .reshape(-1)
+        .tolist()
+    )
+    all_send = set(
+        np.array(
+            db.query(models.Interaction.receiver_id)
+            .filter(models.Interaction.sender_id == user_id)
+            .all()
+        )
+        .reshape(-1)
+        .tolist()
+    )
+    unseen_received = all_received - all_send
+    return db.query(models.User).filter(models.User.id.in_(unseen_received)).all()
 
 
 # def update_user(db: Session, user_id: int, user: dict):

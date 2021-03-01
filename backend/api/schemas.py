@@ -52,4 +52,4 @@ class User(BaseModel):
 
 class Interaction(BaseModel):
     sender_id: int
-    reciever_id: int
+    receiver_id: int

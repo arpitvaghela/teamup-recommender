@@ -74,12 +74,17 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 #     return db_user
 
 
-@app.get("/interactions/{sender_id}/{reciever_id}")
-def send_interaction(sender_id: int, reciever_id: int, db: Session = Depends(get_db)):
-    crud.send_interaction(db, sender_id, reciever_id)  # error check
+@app.get("/interactions/{sender_id}/{receiver_id}")
+def send_interaction(sender_id: int, receiver_id: int, db: Session = Depends(get_db)):
+    crud.send_interaction(db, sender_id, receiver_id)  # error check
     return
 
 
 @app.get("/recommendations/{user_id}")
 def get_recommendation(user_id: int, db: Session = Depends(get_db)):
     return crud.recommed_best_two(db, user_id)
+
+
+@app.get("/pending/{user_id}")
+def get_pending_request(user_id: int, db: Session = Depends(get_db)):
+    return crud.get_pending_requests(db, user_id)
