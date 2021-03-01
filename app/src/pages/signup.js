@@ -13,7 +13,7 @@ const create_user_call = (user) => {
         },
         body:JSON.stringify(user)
     }).then((r) => r.json()).then(data => {
-        window.localStorage.setItem("userid",data.id)
+        window.sessionStorage.setItem("userid",data.id)
         window.location.href="/"
     })
 }
@@ -22,8 +22,12 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [firstname,setFirstname] = useState("");
   const [lastname,setLastname] = useState("");
-  const [degree,setDegree] = useState("")
-  const [year,setYear] = useState("")
+  const [degree,setDegree] = useState("");
+  const [year,setYear] = useState("");
+
+  const [github, setGithub] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+
   return (
     <div className="min-h-screen flex justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-xl w-full space-y-8">
@@ -107,7 +111,28 @@ const SignUp = () => {
                     <option value={e} key={i}>{e}</option>
                 ))}
             </select>
-
+                  <label>
+                Github Url
+              </label>
+              <input
+                type="text"
+                required
+                className="col-span-3 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="github"
+                value={github}
+                onChange={(e) => setGithub(e.target.value)}
+              />
+              <label>
+                Linkedin Url
+              </label>
+              <input
+                type="text"
+                required
+                className="col-span-3 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="linkedin"
+                value={linkedin}
+                onChange={(e) => setLinkedin(e.target.value)}
+              />
           </div>
 
           <div className="flex items-end justify-end">
@@ -115,7 +140,7 @@ const SignUp = () => {
 
           <div className="flex justify-center">
             <button className="justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-4/6"
-                onClick ={() => create_user_call({email,password,firstname,lastname,degree,year})}
+                onClick ={() => create_user_call({email,password,firstname,lastname,degree,year,github,linkedin})}
             >
               Register
             </button>

@@ -33,7 +33,7 @@ class User(BaseModel):
     photo_url: Optional[str]
     github: Optional[str]
     linkedin: Optional[str]
-    group_id: int
+    group_id: Optional[int]
 
     degree: str
     year: int

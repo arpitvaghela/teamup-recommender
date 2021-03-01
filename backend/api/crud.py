@@ -31,7 +31,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 
 def get_popular_users(db: Session, user_id: int):
-    all_send = set(
+    all_send = (
         np.array(
             db.query(models.Interaction.receiver_id)
             .filter(models.Interaction.sender_id == user_id)
@@ -40,6 +40,8 @@ def get_popular_users(db: Session, user_id: int):
         .reshape(-1)
         .tolist()
     )
+    all_send.append(user_id)
+    all_send = set(all_send)
     return (
         db.query(models.User)
         .filter(not_(models.User.id.in_(all_send)))
@@ -64,29 +66,32 @@ def create_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 
-def team_up(db: Session, sender_id: int, received_id: int):
+def team_up(db: Session, sender_id: int, receiver_id: int):
+    print(sender_id, receiver_id)
     user_s = get_user(db, sender_id)
-    user_r = get_user(db, received_id)
+    user_r = get_user(db, receiver_id)
+    print(user_r.group_id, user_s.group_id)
     # if no one is in a group create a group
-    if not user_r.group_id and not user_s.group_id:
-        db_group = models.Group()
-        db_group.member.append(user_s)
-        db_group.member.append(user_r)
-        db.add(db_group)
 
     # if sender in a group reciever joins the group
-    if not user_r.group_id and user_s.group_id:
+    if user_r.group_id:
+        db_group = (
+            db.query(models.Group).filter(models.Group.id == user_r.group_id).first()
+        )
+        db_group.member.append(user_s)
+        db.add(db_group)
+    # else sender (leaves and) joins receivers group
+    elif user_s.group_id:
         db_group = (
             db.query(models.Group).filter(models.Group.id == user_s.group_id).first()
         )
         db_group.member.append(user_r)
         db.add(db_group)
-    # else sender (leaves and) joins receivers group
+
     else:
-        db_group = (
-            db.query(models.Group).filter(models.Group.id == user_r.group_id).first()
-        )
+        db_group = models.Group()
         db_group.member.append(user_s)
+        db_group.member.append(user_r)
         db.add(db_group)
 
     # delete all teams with emplty members
@@ -100,15 +105,22 @@ def send_interaction(db: Session, sender_id: int, receiver_id: int):
     # if r-> s, then create group and add to successful interactions
     if (
         db.query(models.Interaction)
-        .filter(sender_id=receiver_id, receiver_id=receiver_id)
+        .filter(
+            models.Interaction.sender_id == receiver_id,
+            models.Interaction.receiver_id == sender_id,
+        )
         .first()
         is not None
     ):
-        db_pi1 = models.PositiveInteractions(sender_id, receiver_id)
-        db_pi2 = models.PositiveInteractions(receiver_id, sender_id)
+        db_pi1 = models.PositiveInteractions(
+            sender_id=sender_id, receiver_id=receiver_id
+        )
+        db_pi2 = models.PositiveInteractions(
+            sender_id=receiver_id, receiver_id=sender_id
+        )
         db.add(db_pi1)
         db.add(db_pi2)
-        team_up(db, sender_id, received_id)
+        team_up(db, sender_id=sender_id, receiver_id=receiver_id)
 
     db.commit()
 
@@ -180,11 +192,11 @@ def get_pending_requests(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id.in_(unseen_received)).all()
 
 
-# def update_user(db: Session, user_id: int, user: dict):
-#     user_dict = user.dict()
-#     user_dict = {models.User: v for k, v in user_dict.items() if v is not None}
-#     print(user_dict)
-#     db.query(models.User).filter(models.User.id == user_id).update(user_dict)
-#     db.commit()
+def update_user(db: Session, user_id: int, user: dict):
+    user_dict = user.dict()
+    user_dict = {k: v for k, v in user_dict.items() if v is not None}
+    print(user_dict)
+    db.query(models.User).filter(models.User.id == user_id).update(user_dict)
+    db.commit()
 
-#     return db.query(models.User).filter(models.User.id == user_id).first()
+    return db.query(models.User).filter(models.User.id == user_id).first()

@@ -6,7 +6,7 @@ const MyTeam =  () => {
     const [members,setMemebers] = useState([]);
     
     useEffect(() => {
-        fetch(`http://localhost:5000/teams/${window.localStorage.getItem("userid")}`).then(r => {
+        fetch(`http://localhost:5000/teams/${window.sessionStorage.getItem("userid")}`).then(r => {
             if (!r.ok){
                     setMemebers([])
                     throw new Error("Not 200")
@@ -22,8 +22,6 @@ const MyTeam =  () => {
     
     <h1 className="mt-16 text-3xl font-bold pl-4">My Team</h1>
     <TeamList users={members} />
-    <div className="mx-6"><button className="py-2 px-4 rounded-lg bg-green-700 text-pink-50">Submit Team</button>
-        </div>
     </div>
     )
 }

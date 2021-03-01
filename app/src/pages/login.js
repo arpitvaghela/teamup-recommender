@@ -13,7 +13,7 @@ const login_call = (auth) => {
         },
         body:JSON.stringify(auth)
     }).then((r) => r.json()).then(data => {
-        window.localStorage.setItem("userid",data.id)
+        window.sessionStorage.setItem("userid",data.id)
         window.location.href="/"
     })
 }

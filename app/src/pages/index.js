@@ -106,7 +106,7 @@ const Drawer = ({ selected, setSelectedPage }) => {
 const IndexPage = () => {
   const [selectedPage, setSelectedPage] = useState(dashboard);
   useEffect(() => {
-    if (!window.localStorage.getItem("user")) {
+    if (!window.sessionStorage.getItem("userid")) {
       window.location.href = "/login";
     }
   });

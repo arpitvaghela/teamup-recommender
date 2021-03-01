@@ -5,7 +5,7 @@ const Inbox = () => {
     const [refresh,setRefresh] = useState(0)
     useEffect(() => {
         console.log("updating")
-        fetch(`http://localhost:5000/inbox/${window.localStorage.getItem("userid")}`).then(r => r.json()).then(data => setInbox(data))
+        fetch(`http://localhost:5000/inbox/${window.sessionStorage.getItem("userid")}`).then(r => r.json()).then(data => setInbox(data))
     },[refresh])
     return(
          <div className=" h-screen overflow-scroll px-8">
