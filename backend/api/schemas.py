@@ -25,14 +25,6 @@ class UserUpdate(BaseModel):
     linkedin: Optional[str]
 
 
-class Group(BaseModel):
-    id: int
-    # members: List["backend.api.schemas.User"]
-
-    class Config:
-        orm_mode = True
-
-
 class User(BaseModel):
     id: int
     firstname: str
@@ -41,10 +33,19 @@ class User(BaseModel):
     photo_url: Optional[str]
     github: Optional[str]
     linkedin: Optional[str]
-    groups: List[Group] = []
+    group_id: int
 
     degree: str
     year: int
+
+    class Config:
+        orm_mode = True
+
+
+class Group(BaseModel):
+    id: int
+    name: Optional[str]
+    member: List[User]
 
     class Config:
         orm_mode = True

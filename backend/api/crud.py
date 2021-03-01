@@ -63,16 +63,54 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
-# def team_up(db:Session,u1:int,u2:int):
-    
 
-def send_interaction(db: Session, sender_id:int, receiver_id:int):
+def team_up(db: Session, sender_id: int, received_id: int):
+    user_s = get_user(db, sender_id)
+    user_r = get_user(db, received_id)
+    # if no one is in a group create a group
+    if not user_r.group_id and not user_s.group_id:
+        db_group = models.Group()
+        db_group.member.append(user_s)
+        db_group.member.append(user_r)
+        db.add(db_group)
+
+    # if sender in a group reciever joins the group
+    if not user_r.group_id and user_s.group_id:
+        db_group = (
+            db.query(models.Group).filter(models.Group.id == user_s.group_id).first()
+        )
+        db_group.member.append(user_r)
+        db.add(db_group)
+    # else sender (leaves and) joins receivers group
+    else:
+        db_group = (
+            db.query(models.Group).filter(models.Group.id == user_r.group_id).first()
+        )
+        db_group.member.append(user_s)
+        db.add(db_group)
+
+    # delete all teams with emplty members
+    # db.query(models.Group).filter(~models.Group.member.any()).delete()
+
+
+def send_interaction(db: Session, sender_id: int, receiver_id: int):
     db_interaction = models.Interaction(sender_id=sender_id, receiver_id=receiver_id)
 
     db.add(db_interaction)
-    # if r-> s, then create group and add to successful interactions 
-    if db.query(models.Interaction).filter(sender_id=receiver_id, receiver_id=receiver_id).first() is not None:
-        
+    # if r-> s, then create group and add to successful interactions
+    if (
+        db.query(models.Interaction)
+        .filter(sender_id=receiver_id, receiver_id=receiver_id)
+        .first()
+        is not None
+    ):
+        db_pi1 = models.PositiveInteractions(sender_id, receiver_id)
+        db_pi2 = models.PositiveInteractions(receiver_id, sender_id)
+        db.add(db_pi1)
+        db.add(db_pi2)
+        team_up(db, sender_id, received_id)
+
+    db.commit()
 
     # update received count
     db.query(models.User.id).filter(models.User.id == receiver_id).update(
@@ -80,6 +118,15 @@ def send_interaction(db: Session, sender_id:int, receiver_id:int):
     )
     db.commit()
     return db_interaction
+
+
+def get_team(db: Session, user_id: int):
+    user = get_user(db, user_id)
+    return db.query(models.Group).filter(models.Group.id == user.group_id).first()
+
+
+def get_teams(db: Session):
+    return db.query(models.Group).all()
 
 
 def create_interaction_matrix(db: Session):

@@ -3,12 +3,12 @@ from sqlalchemy.orm import relationship
 
 from .database import Base
 
-user_group_association_table = Table(
-    "association",
-    Base.metadata,
-    Column("user_id", Integer, ForeignKey("users.id")),
-    Column("group_id", Integer, ForeignKey("groups.id")),
-)
+# user_group_association_table = Table(
+#     "association",
+#     Base.metadata,
+#     Column("user_id", Integer, ForeignKey("users.id")),
+#     Column("group_id", Integer, ForeignKey("groups.id")),
+# )
 
 
 class User(Base):
@@ -26,18 +26,15 @@ class User(Base):
     linkedin = Column(String, nullable=True)
 
     received_count = Column(Integer)
-    groups = relationship(
-        "Group", secondary=user_group_association_table, back_populates="members"
-    )
+    group_id = Column(Integer, ForeignKey("groups.id"))
 
 
 class Group(Base):
     __tablename__ = "groups"
 
     id = Column(Integer, primary_key=True, index=True)
-    members = relationship(
-        "User", secondary=user_group_association_table, back_populates="groups"
-    )
+    name = Column(String)
+    member = relationship("User")
 
 
 class Interaction(Base):

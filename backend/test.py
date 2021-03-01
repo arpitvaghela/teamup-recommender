@@ -25,24 +25,37 @@ def get_best_two_recommedations():
     print(iM)
     return [u[0] for u in Best_Two_CF(iM, 5) if u[1] > 0]
 
+    # all_received = set(
+    #     np.array(
+    #         db.query(models.Interaction.sender_id)
+    #         .filter(models.Interaction.receiver_id == 9)
+    #         .all()
+    #     )
+    #     .reshape(-1)
+    #     .tolist()
+    # )
+    # all_send = set(
+    #     np.array(
+    #         db.query(models.Interaction.receiver_id)
+    #         .filter(models.Interaction.sender_id == 9)
+    #         .all()
+    #     )
+    #     .reshape(-1)
+    #     .tolist()
+    # )
+    # print(all_received - all_send)
+
 
 if __name__ == "__main__":
-    all_received = set(
-        np.array(
-            db.query(models.Interaction.sender_id)
-            .filter(models.Interaction.receiver_id == 9)
-            .all()
-        )
-        .reshape(-1)
-        .tolist()
-    )
-    all_send = set(
-        np.array(
-            db.query(models.Interaction.receiver_id)
-            .filter(models.Interaction.sender_id == 9)
-            .all()
-        )
-        .reshape(-1)
-        .tolist()
-    )
-    print(all_received - all_send)
+    # user_a = db.query(models.User).filter(models.User.id == 3).first()
+    # user_b = db.query(models.User).filter(models.User.id == 5).first()
+    # db_group = db.query(models.Group).filter(models.Group.id == user_a.group_id).first()
+    # db_group.member.append(user_b)
+    # db.add(db_group)
+    # db.commit()
+
+    deleteme = db.query(models.Group).filter(~models.Group.member.any()).all()
+    for x in deleteme:
+        x.delete()
+
+    db.commit()
